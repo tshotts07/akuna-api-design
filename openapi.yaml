@@ -415,4 +415,25 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  /positions:
+    get:
+      tags:
+        - Positions
+      summary: List positions
+      description: Returns all current positions for the authenticated client.
+      operationId: listPositions
 
+      responses:
+        '200':
+          description: Positions successfully retrieved.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Position'
