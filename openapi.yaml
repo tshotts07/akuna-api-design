@@ -540,3 +540,284 @@ components:
         type: integer
       example: 30
 
+  schemas:
+
+    Instrument:
+      type: object
+      required:
+        - symbol
+        - name
+        - asset_type
+        - currency
+        - tradable
+      properties:
+        symbol:
+          type: string
+          example: AAPL
+
+        name:
+          type: string
+          example: Apple Inc.
+
+        asset_type:
+          type: string
+          enum:
+            - equity
+            - option
+            - future
+          example: equity
+        currency:
+          type: string
+          example: USD
+
+        tick_size:
+          type: number
+          exclusiveMinimum: 0
+          example: 0.01
+
+        tradable:
+          type: boolean
+          example: true
+
+
+    OrderRequest:
+      type: object
+      additionalProperties: false
+
+      required:
+        - symbol
+        - side
+        - type
+        - quantity
+      properties:
+        symbol:
+          type: string
+          minLength: 1
+          maxLength: 20
+          example: AAPL
+
+        side:
+          type: string
+          enum:
+            - buy
+            - sell
+
+        type:
+          type: string
+          enum:
+            - market
+            - limit
+        quantity:
+          type: integer
+          minimum: 1
+          example: 100
+
+        limit_price:
+          type: number
+          exclusiveMinimum: 0
+          example: 220.00
+
+      if:
+        properties:
+          type:
+            const: limit
+        required:
+          - type
+
+      then:
+        required:
+          - limit_price
+    Order:
+      type: object
+      required:
+        - id
+        - symbol
+        - side
+        - type
+        - quantity
+        - filled_quantity
+        - status
+        - created_at
+
+      properties:
+        id:
+          type: string
+          example: ord_8f72a1
+
+        symbol:
+          type: string
+          example: AAPL
+
+        side:
+          type: string
+          enum:
+            - buy
+            - sell
+       type:
+          type: string
+          enum:
+            - market
+            - limit
+
+        quantity:
+          type: integer
+          minimum: 1
+          example: 100
+
+        limit_price:
+          type:
+            - number
+            - "null"
+          exclusiveMinimum: 0
+          example: 220.00
+
+        filled_quantity:
+          type: integer
+          minimum: 0
+          example: 0
+        average_fill_price:
+          type:
+            - number
+            - "null"
+          minimum: 0
+          example: null
+
+        status:
+          $ref: '#/components/schemas/OrderStatus'
+
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-08-17T22:02:00Z"
+
+        updated_at:
+          type: string
+          format: date-time
+          example: "2026-08-17T22:02:03Z"
+    OrderStatus:
+      type: string
+      enum:
+        - open
+        - partially_filled
+        - filled
+        - cancelled
+        - rejected
+      example: open
+
+
+    Position:
+      type: object
+      required:
+        - symbol
+        - quantity
+        - average_price
+        - market_value
+      properties:
+        symbol:
+          type: string
+          example: AAPL
+        quantity:
+          type: integer
+          description: >
+            Net position. Positive quantities represent long positions
+            and negative quantities represent short positions.
+          example: 100
+
+        average_price:
+          type: number
+          minimum: 0
+          example: 215.50
+
+        market_value:
+          type: number
+          example: 22000.00
+
+        unrealized_pnl:
+          type: number
+          description: Current unrealized profit or loss.
+          example: 450.00
+
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              example: INVALID_REQUEST
+
+            message:
+              type: string
+              example: The request could not be processed.
+
+            request_id:
+              type: string
+              description: Identifier that can be used for debugging and support.
+              example: req_a812cd91
+
+  responses:
+
+    BadRequest:
+      description: Invalid or malformed request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: INVALID_REQUEST
+              message: The request body could not be processed.
+              request_id: req_a812cd91
+    Unauthorized:
+      description: Authentication credentials are missing or invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: UNAUTHORIZED
+              message: A valid API key is required.
+              request_id: req_a812cd91
+    RateLimited:
+      description: Client has exceeded the allowed request rate.
+      headers:
+        X-RateLimit-Limit:
+          $ref: '#/components/headers/RateLimitLimit'
+
+        X-RateLimit-Remaining:
+          $ref: '#/components/headers/RateLimitRemaining'
+
+        X-RateLimit-Reset:
+          $ref: '#/components/headers/RateLimitReset'
+
+        Retry-After:
+          $ref: '#/components/headers/RetryAfter'
+
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: RATE_LIMIT_EXCEEDED
+              message: Too many requests. Retry after the specified interval.
+              request_id: req_a812cd91
+
+    InternalServerError:
+      description: An unexpected server error occurred.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: INTERNAL_SERVER_ERROR
+              message: An unexpected error occurred.
+              request_id: req_a812cd91
