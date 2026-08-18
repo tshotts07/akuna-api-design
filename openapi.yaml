@@ -85,6 +85,51 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  /instruments/{symbol}:
+    get:
+      tags:
+        - Instruments
+      summary: Retrieve an instrument
+      description: Returns information about a specific financial instrument.
+      operationId: getInstrument
+
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          description: Trading symbol for the instrument.
+          schema:
+            type: string
+          examples: AAPL
+      
+      responses:
+        '200':
+          description: Instrument successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Instrument'
+        
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+        '404':
+          description: Instrument does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: INSTRUMENT_NOT_FOUND
+                  message: The requested instrument does not exist.
+        
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /orders:
     post:
       summary: Submit new order
