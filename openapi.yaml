@@ -132,13 +132,34 @@ paths:
 
   /orders:
     post:
+      tags:
+        - Orders
       summary: Submit new order
-      description: Creates a new buy or sell order for a financial instrument.
+      description: >
+        Creates new buy or sell order for a financial instrument.
+        Clients should provide an Idempotency-Key to prevent accidental
+        duplicate order submission when retrying a request.
+      operationId: createOrder
+
+      parameters:
+        - name: Idempotency-Key
+          in: headers
+          required: true
+          description: >
+            Unique client-generated key used to safely retry an order
+            submission without creating a duplicate order.
+          schema:
+            type: string
+            minLength: 8
+            maxLength: 128
+          example: 550e8400-e29b-41d4-a716-446655440000
+
       requestBody:
         required: true
         content:
           application/json:
             schema:
+              $ref: '#/components/schemas/OrderRequest'
               type: object
               required:
                 - symbol
