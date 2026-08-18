@@ -5,6 +5,8 @@ info:
   version: 1.0.0
   description: >
     A RESTful API for a simplified electronic trading platform.
+    Clients can view tradable instruments, submit and manage orders,
+    and retrieve current positions.
 
 servers:
   - url: https://api.example.com/v1
@@ -41,7 +43,7 @@ paths:
             minimum: 1
             maximum: 100
             default: 50
-        
+
         - name: cursor
           in: query
           description: Cursor returned by a previous request for pagination.
@@ -76,6 +78,7 @@ paths:
                       - string
                       - "null"
                     example: eyJvZmZzZXQiOjUwfQ==
+
         '401':
           $ref: '#/components/responses/Unauthorized'
 
@@ -84,6 +87,7 @@ paths:
 
         '500':
           $ref: '#/components/responses/InternalServerError'
+
 
   /instruments/{symbol}:
     get:
@@ -101,7 +105,7 @@ paths:
           schema:
             type: string
           example: AAPL
-      
+
       responses:
         '200':
           description: Instrument successfully retrieved.
@@ -109,7 +113,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Instrument'
-        
+
         '401':
           $ref: '#/components/responses/Unauthorized'
 
@@ -123,12 +127,13 @@ paths:
                 error:
                   code: INSTRUMENT_NOT_FOUND
                   message: The requested instrument does not exist.
-        
+
         '429':
           $ref: '#/components/responses/RateLimited'
 
         '500':
           $ref: '#/components/responses/InternalServerError'
+
 
   /orders:
     post:
@@ -136,7 +141,7 @@ paths:
         - Orders
       summary: Submit new order
       description: >
-        Creates new buy or sell order for a financial instrument.
+        Creates a new buy or sell order for a financial instrument.
         Clients should provide an Idempotency-Key to prevent accidental
         duplicate order submission when retrying a request.
       operationId: createOrder
@@ -171,13 +176,14 @@ paths:
                   quantity: 100
                   limit_price: 220.00
 
-              marketOrder: 
+              marketOrder:
                 summary: Market order
                 value:
                   symbol: AAPL
                   side: sell
                   type: market
                   quantity: 50
+
       responses:
         '201':
           description: Order successfully created.
@@ -196,7 +202,7 @@ paths:
 
             X-RateLimit-Reset:
               $ref: '#/components/headers/RateLimitReset'
-            
+
           content:
             application/json:
               schema:
@@ -218,7 +224,7 @@ paths:
                 error:
                   code: INSTRUMENT_NOT_FOUND
                   message: The requested instrument does not exist.
-        
+
         '409':
           description: Request conflicts with an existing order or idempotency key.
           content:
@@ -250,71 +256,74 @@ paths:
                     error:
                       code: INVALID_QUANTITY
                       message: quantity must be greater than zero.
+
         '429':
           $ref: '#/components/responses/RateLimited'
 
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-    get: 
+
+    get:
       tags:
         - Orders
-      summary: List Orders
+      summary: List orders
       description: Returns orders associated with the authenticated client.
       operationId: listOrders
 
       parameters:
-          - name: symbol
-            in: query
-            required: false
-            description: Filter orders by instrument symbol.
-            schema:
-              type: string
-            example: AAPL
+        - name: symbol
+          in: query
+          required: false
+          description: Filter orders by instrument symbol.
+          schema:
+            type: string
+          example: AAPL
 
-          - name: status
-            in: query
-            required: false
-            description: Filter orders by status.
-            schema:
-              $ref: '#/components/schemas/OrderStatus'
+        - name: status
+          in: query
+          required: false
+          description: Filter orders by status.
+          schema:
+            $ref: '#/components/schemas/OrderStatus'
 
-          - name: limit
-            in: query
-            required: false
-            description: Maximum number of orders to return.
-            schema:
-              type: integer
-              minimum: 1
-              maximum: 100
-              default: 50
-          - name: cursor
-                in: query
-                required: false
-                description: Cursor returned by a previous request for pagination.
-                schema:
-                  type: string
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of orders to return.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
 
-    responses:
-      '200':
-        description: Orders successfully retrieved.
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - data
-              properties:
-                data:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Order'
-                
-                next_cursor:
-                  type:
-                    - string
-                    - "null"
-                  example: eyJvZmZzZXQiOjUwfQ==
+        - name: cursor
+          in: query
+          required: false
+          description: Cursor returned by a previous request for pagination.
+          schema:
+            type: string
+
+      responses:
+        '200':
+          description: Orders successfully retrieved.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Order'
+
+                  next_cursor:
+                    type:
+                      - string
+                      - "null"
+                    example: eyJvZmZzZXQiOjUwfQ==
 
         '401':
           $ref: '#/components/responses/Unauthorized'
@@ -324,6 +333,7 @@ paths:
 
         '500':
           $ref: '#/components/responses/InternalServerError'
+
 
   /orders/{order_id}:
     get:
@@ -363,6 +373,7 @@ paths:
 
         '500':
           $ref: '#/components/responses/InternalServerError'
+
 
     delete:
       tags:
@@ -415,6 +426,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+
   /positions:
     get:
       tags:
@@ -438,7 +450,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/Position'
 
-
         '401':
           $ref: '#/components/responses/Unauthorized'
 
@@ -447,6 +458,7 @@ paths:
 
         '500':
           $ref: '#/components/responses/InternalServerError'
+
 
   /positions/{symbol}:
     get:
@@ -493,6 +505,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+
 components:
 
   securitySchemes:
@@ -514,6 +527,8 @@ components:
       schema:
         type: string
       example: ord_8f72a1
+
+
   headers:
 
     RateLimitLimit:
@@ -539,6 +554,7 @@ components:
       schema:
         type: integer
       example: 30
+
 
   schemas:
 
@@ -566,6 +582,7 @@ components:
             - option
             - future
           example: equity
+
         currency:
           type: string
           example: USD
@@ -589,6 +606,7 @@ components:
         - side
         - type
         - quantity
+
       properties:
         symbol:
           type: string
@@ -607,6 +625,7 @@ components:
           enum:
             - market
             - limit
+
         quantity:
           type: integer
           minimum: 1
@@ -627,6 +646,8 @@ components:
       then:
         required:
           - limit_price
+
+
     Order:
       type: object
       required:
@@ -653,7 +674,8 @@ components:
           enum:
             - buy
             - sell
-       type:
+
+        type:
           type: string
           enum:
             - market
@@ -675,6 +697,7 @@ components:
           type: integer
           minimum: 0
           example: 0
+
         average_fill_price:
           type:
             - number
@@ -694,6 +717,8 @@ components:
           type: string
           format: date-time
           example: "2026-08-17T22:02:03Z"
+
+
     OrderStatus:
       type: string
       enum:
@@ -716,6 +741,7 @@ components:
         symbol:
           type: string
           example: AAPL
+
         quantity:
           type: integer
           description: >
@@ -736,6 +762,7 @@ components:
           type: number
           description: Current unrealized profit or loss.
           example: 450.00
+
 
     Error:
       type: object
@@ -761,6 +788,7 @@ components:
               description: Identifier that can be used for debugging and support.
               example: req_a812cd91
 
+
   responses:
 
     BadRequest:
@@ -774,6 +802,8 @@ components:
               code: INVALID_REQUEST
               message: The request body could not be processed.
               request_id: req_a812cd91
+
+
     Unauthorized:
       description: Authentication credentials are missing or invalid.
       content:
@@ -785,6 +815,8 @@ components:
               code: UNAUTHORIZED
               message: A valid API key is required.
               request_id: req_a812cd91
+
+
     RateLimited:
       description: Client has exceeded the allowed request rate.
       headers:
@@ -809,6 +841,7 @@ components:
               code: RATE_LIMIT_EXCEEDED
               message: Too many requests. Retry after the specified interval.
               request_id: req_a812cd91
+
 
     InternalServerError:
       description: An unexpected server error occurred.
