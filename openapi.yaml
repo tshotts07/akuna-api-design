@@ -22,6 +22,32 @@ security:
   - ApiKeyAuth: []
 
 paths:
+
+  /instruments:
+    get:
+      tags:
+        - Instruments
+      summary: List instruments
+      description: Returns all financial instruments currently available for trading.
+      operationId: listInstruments
+
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of instruments to return.
+          required: false
+          schema:
+            type: Integer
+            minimum: 1
+            maximum: 100
+            default: 50
+        
+        - name: cursor
+          in: query
+          description: Cursor returned by a previous request for pagination.
+          required: false
+          schema:
+            type: string
   /orders:
     post:
       summary: Submit new order
