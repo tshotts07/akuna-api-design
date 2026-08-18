@@ -178,4 +178,80 @@ paths:
                   side: sell
                   type: market
                   quantity: 50
-              
+      responses:
+        '201':
+          description: Order successfully created.
+          headers:
+            Location:
+              description: URL of the newly created order.
+              schema:
+                type: string
+              example: /v1/orders/ord_8f72a1
+
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/RateLimitLimit'
+
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimitRemaining'
+
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/RateLimitReset'
+            
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+        '404':
+          description: Instrument does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: INSTRUMENT_NOT_FOUND
+                  message: The requested instrument does not exist.
+        
+        '409':
+          description: Request conflicts with an existing order or idempotency key.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: IDEMPOTENCY_CONFLICT
+                  message: This idempotency key has already been used with a different request.
+
+        '422':
+          description: Request is syntactically valid but contains invalid order data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                missingLimitPrice:
+                  summary: Missing limit price
+                  value:
+                    error:
+                      code: INVALID_ORDER
+                      message: limit_price is required for limit orders.
+
+                invalidQuantity:
+                  summary: Invalid quantity
+                  value:
+                    error:
+                      code: INVALID_QUANTITY
+                      message: quantity must be greater than zero.
+        429':
+          $ref: '#/components/responses/RateLimited'
+
+        '500':
+          $ref: '#/components/responses/InternalServerError'
