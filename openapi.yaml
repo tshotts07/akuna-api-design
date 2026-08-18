@@ -160,101 +160,22 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/OrderRequest'
-              type: object
-              required:
-                - symbol
-                - side
-                - type
-                - quantity
-                
-              properties:
-                symbol:
-                  type: string
-                  example: AAPL
-                  
-                side:
-                  type: string
-                  enum:
-                    - buy
-                    - sell
-                    
-                type:
-                  type: string
-                  enum:
-                    - market
-                    - limit
-                    
-                quantity:
-                  type: integer
-                  minimum: 1
-                  example: 100
-                  
-                limit_price:
-                  type: number
-                  exclusiveMinimum: 0
-                  example: 220.00
 
-              if:
-                properties:
-                  type:
-                    const: limit
+            examples:
+              limitOrder:
+                summary: Limit order
+                value:
+                  symbol: AAPL
+                  side: buy
+                  type: limit
+                  quantity: 100
+                  limit_price: 220.00
 
-              then:
-                required:
-                  - limit_price
-
-
-      responses:
-        '201':
-          description: Order successfully created.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    example: ord_8f72a1
-
-                  symbol:
-                    type: string
-                    example: AAPL
-
-                  side:
-                    type: string
-                    enum:
-                      - buy
-                      - sell
-
-                  type:
-                    type: string
-                    enum:
-                      - market
-                      - limit
-
-                  quantity:
-                    type: integer
-                    example: 100
-
-                  limit_price:
-                    type:
-                      - number
-                      - "null"
-                    example: 220.00
-
-                  filled_quantity:
-                    type: integer
-                    example: 0
-
-                  status:
-                    type: string
-                    enum:
-                      - open
-                      - partially_filled
-                      - filled
-                      - cancelled
-
-                  created_at:
-                    type: string
-                    format: date-time
-                    example: "2026-08-17T22:02:00Z"
+              markerOrder: 
+                summary: Market order
+                value:
+                  symbol: AAPL
+                  side: sell
+                  type: market
+                  quantity: 50
+              
