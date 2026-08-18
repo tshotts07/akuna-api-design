@@ -10,6 +10,17 @@ servers:
   - url: https://api.example.com/v1
     description: Example production server
 
+tags:
+  - name: Instruments
+    description: Tradable financial instruments.
+  - name: Orders
+    description: Order submission and management.
+  - name: Positions
+    description: Current client positions.
+
+security:
+  - ApiKeyAuth: []
+
 paths:
   /orders:
     post:
