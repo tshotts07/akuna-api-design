@@ -437,3 +437,106 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Position'
+
+
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /positions/{symbol}:
+    get:
+      tags:
+        - Positions
+      summary: Retrieve a position
+      description: Returns the client's position for a specific instrument.
+      operationId: getPosition
+
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          description: Trading symbol for the instrument.
+          schema:
+            type: string
+          example: AAPL
+
+      responses:
+        '200':
+          description: Position successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Position'
+
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+        '404':
+          description: No position exists for the requested symbol.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: POSITION_NOT_FOUND
+                  message: No position exists for the requested instrument.
+
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: >
+        API key used to authenticate requests. In a production system,
+        API keys would be issued securely to authorized clients.
+
+
+  parameters:
+    OrderId:
+      name: order_id
+      in: path
+      required: true
+      description: Unique identifier for an order.
+      schema:
+        type: string
+      example: ord_8f72a1
+  headers:
+
+    RateLimitLimit:
+      description: Maximum number of requests allowed in the current window.
+      schema:
+        type: integer
+      example: 1000
+
+    RateLimitRemaining:
+      description: Number of requests remaining in the current window.
+      schema:
+        type: integer
+      example: 742
+
+    RateLimitReset:
+      description: Unix timestamp indicating when the current rate-limit window resets.
+      schema:
+        type: integer
+      example: 1787023200
+
+    RetryAfter:
+      description: Number of seconds the client should wait before retrying.
+      schema:
+        type: integer
+      example: 30
+
