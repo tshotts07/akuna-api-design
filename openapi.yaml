@@ -256,44 +256,44 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-  get: 
-    tags:
-      - Orders:
-    summary: List Orders
-    description: Returns orders associated with the authenticated client.
-    operationId: listOrders
+    get: 
+      tags:
+        - Orders
+      summary: List Orders
+      description: Returns orders associated with the authenticated client.
+      operationId: listOrders
 
-    parameters:
-        - name: symbol
-          in: query
-          required: false
-          description: Filter orders by instrument symbol.
-          schema:
-            type: string
-          example: AAPL
+      parameters:
+          - name: symbol
+            in: query
+            required: false
+            description: Filter orders by instrument symbol.
+            schema:
+              type: string
+            example: AAPL
 
-        - name: status
-          in: query
-          required: false
-          description: Filter orders by status.
-          schema:
-            $ref: '#/components/schemas/OrderStatus'
+          - name: status
+            in: query
+            required: false
+            description: Filter orders by status.
+            schema:
+              $ref: '#/components/schemas/OrderStatus'
 
-        - name: limit
-          in: query
-          required: false
-          description: Maximum number of orders to return.
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            default: 50
-        - name: cursor
-              in: query
-              required: false
-              description: Cursor returned by a previous request for pagination.
-              schema:
-                type: string
+          - name: limit
+            in: query
+            required: false
+            description: Maximum number of orders to return.
+            schema:
+              type: integer
+              minimum: 1
+              maximum: 100
+              default: 50
+          - name: cursor
+                in: query
+                required: false
+                description: Cursor returned by a previous request for pagination.
+                schema:
+                  type: string
 
     responses:
       '200':
