@@ -76,6 +76,14 @@ paths:
                       - string
                       - "null"
                     example: eyJvZmZzZXQiOjUwfQ==
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
   /orders:
     post:
